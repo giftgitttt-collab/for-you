@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BOND</title>
+  <style>
+    /* 1. لوحة الألوان المعتمدة */
+    :root {
+      --light-pink: #F3CCDE;
+      --pastel-rose: #D6A8C4;
+      --medium-lilac: #BA88AE;
+      --dusty-purple: #9E6899;
+      --dark-purple: #5B3765;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--light-pink);
+      color: var(--dark-purple);
+      min-height: 100vh;
+    }
+
+    /* 2. شاشة كلمة السر Overlay */
+    .password-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: linear-gradient(135deg, var(--dark-purple), var(--dusty-purple), var(--medium-lilac));
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    .password-box {
+      background: #ffffff;
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(91, 55, 101, 0.25);
+      text-align: center;
+      max-width: 360px;
+      width: 90%;
+      border: 2px solid var(--pastel-rose);
+    }
+
+    .password-box h2 {
+      color: var(--dark-purple);
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+    }
+
+    .password-box input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid var(--pastel-rose);
+      border-radius: 10px;
+      outline: none;
+      font-size: 1.1rem;
+      text-align: center;
+      margin-bottom: 15px;
+      transition: border-color 0.3s;
+      background-color: #fff;
+      color: var(--dark-purple);
+    }
+
+    .password-box input:focus {
+      border-color: var(--dusty-purple);
+    }
+
+    .password-box button {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--dark-purple);
+      color: var(--light-pink);
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .password-box button:hover {
+      background-color: var(--dusty-purple);
+      transform: translateY(-2px);
+    }
+
+    .error-msg {
+      color: #c0392b;
+      font-size: 0.85rem;
+      margin-top: 12px;
+      min-height: 18px;
+      font-weight: bold;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* 3. المحتوى الرئيسي */
+    .main-content {
+      padding: 40px 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    /* العداد */
+    .timer-section {
+      padding: 40px 20px;
+      background-color: rgba(255, 255, 255, 0.85);
+      border-radius: 20px;
+      margin-bottom: 40px;
+      box-shadow: 0 5px 20px rgba(91, 55, 101, 0.1);
+      border: 1px solid var(--pastel-rose);
+    }
+
+    .timer-text {
+      font-size: 1.2rem;
+      color: var(--dark-purple);
+      margin-bottom: 25px;
+      line-height: 1.6;
+      font-weight: bold;
+    }
+
+    .countdown-container {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .time-box {
+      background-color: var(--dark-purple);
+      color: var(--light-pink);
+      padding: 15px;
+      border-radius: 15px;
+      min-width: 80px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .time-box span {
+      font-size: 2rem;
+      font-weight: bold;
+      display: block;
+      line-height: 1;
+    }
+
+    .time-box label {
+      font-size: 0.8rem;
+      color: var(--pastel-rose);
+      margin-top: 5px;
+      display: block;
+    }
+
+    /* معرض الصور */
+    .gallery-section {
+      padding: 10px 0;
+      margin-bottom: 40px;
+    }
+
+    .photo-card {
+      background-color: #fff;
+      padding: 12px;
+      border-radius: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      border: 1px solid var(--pastel-rose);
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      display: block;
+      object-fit: cover;
+    }
+
+    .photo-date {
+      margin-top: 12px;
+      font-size: 1rem;
+      color: var(--dark-purple);
+      font-weight: bold;
+    }
+
+    .solo-photo {
+      max-width: 420px;
+      margin: 0 auto 40px auto;
+    }
+
+    .interactive-slider {
+      max-width: 450px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .slider-img-container {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .slider-img-container img {
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    .click-hint {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(91, 55, 101, 0.75);
+      color: var(--light-pink);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      pointer-events: none;
+    }
+
+    .slider-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 15px;
+    }
+
+    .slider-btn {
+      background-color: var(--dark-purple);
+      color: var(--light-pink);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+
+    .slider-btn:hover {
+      background-color: var(--dusty-purple);
+    }
+
+    .slider-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      background-color: var(--pastel-rose);
+      border-radius: 50%;
+      transition: background-color 0.3s;
+    }
+
+    .dot.active {
+      background-color: var(--dark-purple);
+      transform: scale(1.2);
+    }
+
+    /* 4. قسم القلب التفاعلي */
+    .heart-section {
+      margin-top: 30px;
+      margin-bottom: 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .heart-button {
+      font-size: 4rem;
+      color: var(--dusty-purple);
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.3s ease, color 0.3s ease;
+      animation: pulse 1.5s infinite;
+      margin-bottom: 10px;
+    }
+
+    .heart-button:hover {
+      color: var(--dark-purple);
+      transform: scale(1.2);
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .heart-hint {
+      font-size: 0.95rem;
+      color: var(--dark-purple);
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .message-video-box {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 25px 20px;
+      border-radius: 20px;
+      border: 2px solid var(--pastel-rose);
+      box-shadow: 0 5px 20px rgba(91, 55, 101, 0.12);
+      max-width: 500px;
+      width: 100%;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .message-video-box.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .secret-message {
+      font-size: 1.15rem;
+      color: var(--dark-purple);
+      font-weight: bold;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .video-container {
+      width: 100%;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      background-color: #000;
+    }
+
+    .video-container video {
+      width: 100%;
+      display: block;
+      border-radius: 15px;
+    }
+
+    /* 5. قسم زرار أغنية النهاية */
+    .music-section {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 2px dashed var(--pastel-rose);
+      display: flex;
+      justify-content: center;
+    }
+
+    .music-btn {
+      background: linear-gradient(135deg, var(--dark-purple), var(--dusty-purple));
+      color: var(--light-pink);
+      border: 2px solid var(--pastel-rose);
+      padding: 16px 32px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 8px 25px rgba(91, 55, 101, 0.25);
+      transition: all 0.3s ease;
+    }
+
+    .music-btn:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 12px 30px rgba(91, 55, 101, 0.35);
+      background: linear-gradient(135deg, var(--dusty-purple), var(--dark-purple));
+    }
+
+    .music-btn .icon {
+      font-size: 1.4rem;
+    }
+
+    @media (max-width: 600px) {
+      .time-box {
+        padding: 10px;
+        min-width: 65px;
+      }
+      .time-box span {
+        font-size: 1.5rem;
+      }
+      .timer-text {
+        font-size: 1rem;
+      }
+      .secret-message {
+        font-size: 1rem;
+      }
+      .music-btn {
+        padding: 14px 24px;
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- شاشة كلمة السر -->
+  <div id="password-screen" class="password-overlay">
+    <div class="password-box">
+      <h2>أدخل كلمة السر للدخول</h2>
+      <input type="password" id="password-input" placeholder="كلمة السر...">
+      <button onclick="checkPassword()">دخول</button>
+      <p id="error-message" class="error-msg"></p>
+    </div>
+  </div>
+
+  <!-- المحتوى الرئيسي للموقع -->
+  <div id="main-content" class="main-content hidden">
+    
+    <!-- قسم العداد -->
+    <div class="timer-section">
+      <p class="timer-text">وكل ما الوقت يعدّي… بكتشف إن أجمل حاجة بدأت من يوم ما بقينا مع بعض 🧡</p>
+      <div id="countdown-timer" class="countdown-container">
+        <div class="time-box"><span id="years">00</span><label>سنة</label></div>
+        <div class="time-box"><span id="months">00</span><label>شهر</label></div>
+        <div class="time-box"><span id="days">00</span><label>يوم</label></div>
+        <div class="time-box"><span id="hours">00</span><label>ساعة</label></div>
+        <div class="time-box"><span id="minutes">00</span><label>دقيقة</label></div>
+        <div class="time-box"><span id="seconds">00</span><label>ثانية</label></div>
+      </div>
+    </div>
+
+    <!-- قسم الصور -->
+    <div class="gallery-section">
+      
+      <!-- الصورة رقم 7 (ثابتة منفردة) -->
+      <div class="photo-card solo-photo">
+        <img src="7.jpg" alt="صورة 7">
+        <p class="photo-date">5\11\2025</p>
+      </div>
+
+      <!-- معرض الصور المتحرك عند الضغط (1, 2, 3, 4, 6) -->
+      <div class="photo-card interactive-slider">
+        <div class="slider-img-container" onclick="nextImage()">
+          <img id="slider-image" src="1.jpg" alt="معرض الصور">
+          <span class="click-hint">اضغطي على الصورة للذهاب للتالية 👈</span>
+        </div>
+        
+        <p class="photo-date">22\11\2025</p>
+
+        <!-- أزرار ودوائر التنقل -->
+        <div class="slider-controls">
+          <button class="slider-btn" onclick="prevImage()">السابقة</button>
+          <div class="slider-dots" id="dots-container"></div>
+          <button class="slider-btn" onclick="nextImage()">التالية</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- قسم القلب والرسالة السرية -->
+    <div class="heart-section">
+      <div class="heart-button" onclick="toggleHeartMessage()" id="heart-btn">🧡</div>
+      <p class="heart-hint">اضغطي على القلب هنا ✨</p>
+
+      <div id="message-box" class="message-video-box hidden">
+        <p class="secret-message">
+          ربنا يخليكي ليا ياروح قلبي وحتة مني ميحرمنيش منك ابدا انتي افضل حاجه في حياتي كلها بحبك يارايق🧡💍
+        </p>
+        <div class="video-container">
+          <video id="special-video" controls>
+            <source src="video1.mp4" type="video/mp4">
+            متصفحك لا يدعم تشغيل الفيديو.
+          </video>
+        </div>
+      </div>
+    </div>
+
+    <!-- زرار تشغيل الأغنية لحتمية الموقع -->
+    <div class="music-section">
+      <button class="music-btn" onclick="toggleAudio()">
+        <span class="icon" id="music-icon">🎵</span>
+        <span id="music-btn-text">شغلي أغنيتنا 🧡</span>
+      </button>
+      <audio id="bg-audio" src="oudio1.m4a"></audio>
+    </div>
+
+  </div>
+
+  <script>
+    // 1. كلمة السر
+    const correctPassword = "1911";
+
+    function checkPassword() {
+      const inputField = document.getElementById("password-input");
+      const errorMessage = document.getElementById("error-message");
+      const passwordScreen = document.getElementById("password-screen");
+      const mainContent = document.getElementById("main-content");
+
+      if (inputField.value === correctPassword) {
+        passwordScreen.classList.add("hidden");
+        mainContent.classList.remove("hidden");
+        startCountdown();
+        initSliderDots();
+      } else {
+        errorMessage.textContent = "كلمة السر غير صحيحة، حاولي مرة أخرى.";
+        inputField.value = "";
+      }
+    }
+
+    document.getElementById("password-input").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        checkPassword();
+      }
+    });
+
+    // 2. العداد الزمني (من 5/11/2025)
+    function startCountdown() {
+      const startDate = new Date("November 5, 2025 00:00:00").getTime();
+
+      setInterval(function() {
+        const now = new Date().getTime();
+        const distance = now - startDate;
+
+        if (distance < 0) return;
+
+        const years = Math.floor(distance / (1000 * 60 * 60 * 24 * 365));
+        const months = Math.floor((distance % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24 * 30));
+        const days = Math.floor((distance % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById("years").textContent = formatTime(years);
+        document.getElementById("months").textContent = formatTime(months);
+        document.getElementById("days").textContent = formatTime(days);
+        document.getElementById("hours").textContent = formatTime(hours);
+        document.getElementById("minutes").textContent = formatTime(minutes);
+        document.getElementById("seconds").textContent = formatTime(seconds);
+
+      }, 1000);
+    }
+
+    function formatTime(time) {
+      return time < 10 ? `0${time}` : time;
+    }
+
+    // 3. سلايدر الصور (1, 2, 3, 4, 6)
+    const imagesList = ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "6.jpg"];
+    let currentIndex = 0;
+
+    function initSliderDots() {
+      const dotsContainer = document.getElementById("dots-container");
+      dotsContainer.innerHTML = "";
+      imagesList.forEach((_, index) => {
+        const dot = document.createElement("div");
+        dot.classList.add("dot");
+        if (index === 0) dot.classList.add("active");
+        dotsContainer.appendChild(dot);
+      });
+    }
+
+    function updateSlider() {
+      const imgElement = document.getElementById("slider-image");
+      imgElement.style.opacity = 0;
+      
+      setTimeout(() => {
+        imgElement.src = imagesList[currentIndex];
+        imgElement.style.opacity = 1;
+      }, 150);
+
+      const dots = document.querySelectorAll(".dot");
+      dots.forEach((dot, index) => {
+        dot.classList.toggle("active", index === currentIndex);
+      });
+    }
+
+    function nextImage() {
+      currentIndex = (currentIndex + 1) % imagesList.length;
+      updateSlider();
+    }
+
+    function prevImage() {
+      currentIndex = (currentIndex - 1 + imagesList.length) % imagesList.length;
+      updateSlider();
+    }
+
+    // 4. إظهار الرسالة والفيديو عند الضغط على القلب
+    function toggleHeartMessage() {
+      const messageBox = document.getElementById("message-box");
+      const video = document.getElementById("special-video");
+
+      if (messageBox.classList.contains("hidden")) {
+        messageBox.classList.remove("hidden");
+        setTimeout(() => {
+          messageBox.classList.add("show");
+        }, 20);
+      } else {
+        messageBox.classList.remove("show");
+        setTimeout(() => {
+          messageBox.classList.add("hidden");
+          video.pause();
+        }, 600);
+      }
+    }
+
+    // 5. تشغيل وإيقاف الأغنية
+    function toggleAudio() {
+      const audio = document.getElementById("bg-audio");
+      const btnText = document.getElementById("music-btn-text");
+      const musicIcon = document.getElementById("music-icon");
+
+      if (audio.paused) {
+        audio.play();
+        btnText.textContent = "إيقاف الأغنية ⏸️";
+        musicIcon.textContent = "🎶";
+      } else {
+        audio.pause();
+        btnText.textContent = "شغلي أغنيتنا 🧡";
+        musicIcon.textContent = "🎵";
+      }
+    }
+  </script>
+</body>
+</html>
